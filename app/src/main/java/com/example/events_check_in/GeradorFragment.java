@@ -1,64 +1,85 @@
 package com.example.events_check_in;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link GeradorFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 public class GeradorFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public GeradorFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GeradorFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static GeradorFragment newInstance(String param1, String param2) {
-        GeradorFragment fragment = new GeradorFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Inflar o layout para o fragment
+        View view = inflater.inflate(R.layout.fragment_gerador, container, false);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_gerador, container, false);
+        // Button para gerar o QR code
+        Button btnGenerate = view.findViewById(R.id.btnGenerate);
+        // Campo de texto para entrada do texto do QR code
+        EditText etText = view.findViewById(R.id.etText);
+        // ImageView para mostrar o QR code gerado
+        ImageView imageCode = view.findViewById(R.id.imageCode);
+
+        btnGenerate.setOnClickListener(v -> {
+            // Obtendo o texto do campo de entrada
+            String myText = etText.getText().toString().trim();
+            // Inicializando MultiFormatWriter para QR code
+            MultiFormatWriter mWriter = new MultiFormatWriter();
+            try {
+                // Criando a BitMatrix para codificar o texto inserido e definindo altura e largura
+                BitMatrix mMatrix = mWriter.encode(myText, BarcodeFormat.QR_CODE, 400, 400);
+                BarcodeEncoder mEncoder = new BarcodeEncoder();
+                Bitmap mBitmap = mEncoder.createBitmap(mMatrix); // Criando o bitmap do código
+                imageCode.setImageBitmap(mBitmap); // Definindo o QR code gerado no ImageView
+
+                // Para ocultar o teclado
+                InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                manager.hideSoftInputFromWindow(etText.getWindowToken(), 0);
+            } catch (WriterException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return view;
     }
 }
