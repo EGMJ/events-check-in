@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AjustesFragment">
+
+        <LinearLayout
+            android:layout_width="409dp"
+            android:layout_height="729dp"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="1dp"
+            tools:layout_editor_absoluteY="1dp">
+
+            <TextView
+                android:id="@+id/txtMeuPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Meu Perfil"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textSize="40dp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="20dp"/>
+
+            <EditText
+                android:id="@+id/edtId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="ID" />
+
+            <EditText
+                android:id="@+id/edtNome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="Nome" />
+
+            <EditText
+                android:id="@+id/edtCpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="CPF"/>
+
+            <EditText
+                android:id="@+id/edtTelefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="Telefone" />
+
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnAtualizar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Atualizar"
+                android:textAllCaps="false"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnExcluir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Excluir"
+                android:textAllCaps="false"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnVoltar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voltar"
+                android:textAllCaps="false"/>
+
+        </LinearLayout>
+
+</FrameLayout>

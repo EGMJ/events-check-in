@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_gen"
+        android:title="Code"
+        android:icon="@drawable/heart_button"/>
+    <item
+        android:id="@+id/nav_aju"
+        android:title="Ajustes"
+        android:icon="@drawable/settings"/>
+</menu>
