@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.example.events_check_in.dao.ClienteDAO;
+import com.example.events_check_in.model.Cliente;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -26,6 +28,8 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 
 public class GeradorFragment extends Fragment {
+
+    private Cliente cliente;
 
     @Nullable
     @Override
@@ -37,8 +41,24 @@ public class GeradorFragment extends Fragment {
         Button btnGenerate = view.findViewById(R.id.btnGenerate);
         // Campo de texto para entrada do texto do QR code
         EditText etText = view.findViewById(R.id.etText);
+
         // ImageView para mostrar o QR code gerado
         ImageView imageCode = view.findViewById(R.id.imageCode);
+
+        // Recuperando o CPF do cliente passado pelo Bundle
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String cpf = bundle.getString("cpfLogin");
+            ClienteDAO clienteDAO = new ClienteDAO(getActivity());
+            cliente = clienteDAO.readByCpf(cpf);  // Obtém os dados do cliente
+
+            if (cliente != null) {
+                // Formatando o texto para o EditText
+                String clientData = "ID:" + cliente.getId() + ", Nome:" + cliente.getNome() +
+                        ", CPF:" + cliente.getCpf() + ", Telefone:" + cliente.getTelefone();
+                etText.setText(clientData);  // Definindo o texto no EditText
+            }
+        }
 
         btnGenerate.setOnClickListener(v -> {
             // Obtendo o texto do campo de entrada
@@ -55,7 +75,7 @@ public class GeradorFragment extends Fragment {
                 Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
                 // Cores para o fundo e o QR code
-                int colorBackground = 0xFF050038; // Azul claro
+                int colorBackground = 0x050038; // Azul claro
                 int colorQRCode = 0xFF000000; // Preto
 
                 // Percorrendo os pixels do BitMatrix e aplicando as cores
