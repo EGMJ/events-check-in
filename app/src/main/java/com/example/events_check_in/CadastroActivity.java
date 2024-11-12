@@ -14,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.events_check_in.dao.ClienteDAO;
 import com.example.events_check_in.model.Cliente;
+import com.example.events_check_in.util.CpfMask;
+import com.example.events_check_in.util.TelefoneMask;
 
 public class CadastroActivity extends AppCompatActivity {
 
@@ -40,7 +42,9 @@ public class CadastroActivity extends AppCompatActivity {
         edtTelefone = findViewById(R.id.edtTelefone);
         edtSenha = findViewById(R.id.edtSenha);
         edtConfirmaSenha = findViewById(R.id.edtConfirmaSenha);
-        btnSair = findViewById(R.id.btnVoltar);
+
+        CpfMask.applyCpfMask(edtCpf);
+        TelefoneMask.applyTelefoneMask(edtTelefone);
 
         btnCadastrar.setOnClickListener(view -> {
             // Obter os dados dos campos
@@ -70,27 +74,24 @@ public class CadastroActivity extends AppCompatActivity {
                 return; // Interrompe a execução se o CPF já existir
             }
 
-            // Caso o CPF não esteja cadastrado, cria o aluno e faz o cadastro
-            Cliente aluno = new Cliente();
-            aluno.setNome(nome);
-            aluno.setCpf(cpf);
-            aluno.setTelefone(telefone);
-            aluno.setSenha(senha);
-            long id = clienteDAO.insert(aluno);
+            // Cria um novo cliente e define os atributos
+            Cliente cliente = new Cliente();
+            cliente.setNome(nome);
+            cliente.setCpf(cpf);
+            cliente.setTelefone(telefone);
+            cliente.setSenha(senha);
+            // Inserir no banco
+            long id = clienteDAO.insert(cliente);
 
             if (id > 0) {
                 Toast.makeText(getApplicationContext(), "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show();
+
+                Intent i = new Intent(this,LoginActivity.class);
+                startActivity(i);
+                finish();
             } else {
                 Toast.makeText(getApplicationContext(), "Erro ao cadastrar", Toast.LENGTH_SHORT).show();
             }
         });
-
-        btnSair.setOnClickListener(view -> {
-            Intent i = new Intent(this,LoginActivity.class);
-            startActivity(i);
-            finish();
-        });
-
-
     }
 }

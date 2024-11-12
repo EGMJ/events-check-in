@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.events_check_in.dao.ClienteDAO;
 import com.example.events_check_in.model.Cliente;
+import com.example.events_check_in.util.CpfMask;
 import com.google.android.material.snackbar.Snackbar;
 
 public class LoginActivity extends AppCompatActivity {
@@ -25,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String ERROR_EMPTY_CPF = "Preencha o CPF!";
     private static final String ERROR_EMPTY_PASSWORD = "Preencha a Senha!";
     private static final String ERROR_INVALID_CPF = "CPF inválido!";
-    private static final String ERROR_INVALID_PASSWORD = "A senha precisa ter pelo menos 6 caracteres!";
+    private static final String ERROR_INVALID_PASSWORD = "Senha Inválida";
 
     private EditText editCpf;
     private EditText editSenha;
@@ -56,6 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         btnEntrar = findViewById(R.id.btnEntrar);
         progressBar = findViewById(R.id.progressBar);
         txtTelaCadastro = findViewById(R.id.txtTelaCadastro);
+
+        CpfMask.applyCpfMask(editCpf);
 
         // On click botão "Entrar"
         btnEntrar.setOnClickListener(new View.OnClickListener() {
@@ -106,29 +109,42 @@ public class LoginActivity extends AppCompatActivity {
 
 //                 Inicializa ClienteDAO com o contexto correto
                 clienteDAO = new ClienteDAO(LoginActivity.this);
-                boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
+//                boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
+                boolean isLoginValidoCpf = clienteDAO.isLoginValidoCpf(cpf);
+                System.out.println("senha login: "+ senha);
+                boolean isLoginValidoSenha = clienteDAO.isLoginValidoSenha(senha);
 
-//                boolean isLoginValido = true;
+                System.out.println(isLoginValidoSenha);
 
-                // Se o usuário existir no banco de dados, redireciona e exibe a mensagem de sucesso
-                if (isLoginValido) {
-                    redirectToLogin();
-                    Snackbar snackbar = Snackbar.make(progressBar, "Login efetuado com sucesso!", Snackbar.LENGTH_SHORT);
-                    snackbar.show();
+
+
+                if (!isLoginValidoCpf && !isLoginValidoSenha) {
+                    // CPF e senha incorretos
+                    showSnackbar(ERROR_INVALID_CPF + " e " + ERROR_INVALID_PASSWORD);
+                } else if (!isLoginValidoCpf) {
+                    // Somente CPF incorreto
+                    showSnackbar(ERROR_INVALID_CPF);
+                } else if (!isLoginValidoSenha) {
+                    // Somente senha incorreta
+                    showSnackbar(ERROR_INVALID_PASSWORD);
                 } else {
-                    // Caso contrário, exibe a mensagem de erro e limpa os campos de texto
-                    editCpf.setText(null);
-                    editSenha.setText(null);
-
-                    Snackbar snackbar = Snackbar.make(progressBar, "Usuário ou senha incorretos", Snackbar.LENGTH_SHORT);
-                    snackbar.show();
+                    // CPF e senha corretos, redireciona para a próxima tela
+                    redirectToLogin();
+                    showSnackbar("Login efetuado com sucesso!");
                 }
             }
         }, 3000);
     }
 
+    private void showSnackbar(String message) {
+        Snackbar snackbar = Snackbar.make(progressBar, message, Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
+
+
     private void redirectToLogin() {
         Intent intent = new Intent(this, MainActivity.class);
+        // enviar o cpf para a tela da frente (main) e com o readbycpf puxar os dados do usuario
         startActivity(intent);
         finish();
     }

@@ -24,14 +24,15 @@ public class ClienteDAO {
     }
 
     // Método para inserir dados
-    public long insert(Cliente cliente){
+    public long insert(Cliente cliente) {
         ContentValues values = new ContentValues();
         values.put("nome", cliente.getNome());
         values.put("cpf", cliente.getCpf());
-        values.put("telefone", cliente.getTelefone());
-        values.put("senha", cliente.getSenha());
-        return banco.insert("cliente", null, values); // Inserindo os dados na tabela
+        values.put("telefone", cliente.getTelefone()); // Verifique aqui se 'telefone' está sendo salvo
+        values.put("senha", cliente.getSenha());       // Verifique aqui se 'senha' está sendo salvo
+        return banco.insert("cliente", null, values);  // Inserindo os dados na tabela
     }
+
 
     // Método para verificar login (CPF e senha juntos)
     public boolean isLoginValido(String cpf, String senha) {
@@ -41,6 +42,24 @@ public class ClienteDAO {
         cursor.close();
         return existe;
     }
+
+    public boolean isLoginValidoCpf(String cpf) {
+        String query = "SELECT * FROM cliente WHERE cpf = ?";
+        Cursor cursor = banco.rawQuery(query, new String[]{cpf});
+        boolean existe = cursor.getCount() > 0;
+        cursor.close();
+        return existe;
+    }
+
+    public boolean isLoginValidoSenha(String senha) {
+        String query = "SELECT * FROM cliente WHERE senha = ?";
+        Cursor cursor = banco.rawQuery(query, new String[]{senha});
+        boolean existe = cursor.getCount() > 0;
+        cursor.close();
+        return existe;
+    }
+
+
 
     public boolean isCpfCadastrado(String cpf) {
         String query = "SELECT * FROM cliente WHERE cpf = ?";
@@ -109,4 +128,39 @@ public class ClienteDAO {
 
         return cliente; // Retorna 'null' se não encontrar o cliente
     }
+
+    // Consultar cliente específico por CPF
+    public Cliente readByCpf(String cpf) {
+        String[] args = {cpf};
+        Cliente cliente = null;
+
+        Cursor cursor = banco.query("cliente", new String[]{"id", "nome", "cpf", "telefone", "senha"},
+                "cpf=?", args, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            cliente = new Cliente();
+            cliente.setId(cursor.getInt(0));
+            cliente.setNome(cursor.getString(1));
+            cliente.setCpf(cursor.getString(2));
+            cliente.setTelefone(cursor.getString(3));
+            cliente.setSenha(cursor.getString(4));
+
+            // Imprime as informações do cliente no terminal para depuração
+            System.out.println("Cliente encontrado:");
+            System.out.println("ID: " + cliente.getId());
+            System.out.println("Nome: " + cliente.getNome());
+            System.out.println("CPF: " + cliente.getCpf());
+            System.out.println("Telefone: " + cliente.getTelefone());
+            System.out.println("Senha: " + cliente.getSenha());
+        } else {
+            System.out.println("Nenhum cliente encontrado com o CPF: " + cpf);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return cliente; // Retorna 'null' se não encontrar o cliente
+    }
+
 }

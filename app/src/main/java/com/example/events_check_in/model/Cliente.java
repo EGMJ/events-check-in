@@ -51,6 +51,6 @@ public class Cliente {
     }
 
     public void setSenha(String senha) {
-        this.telefone = senha;
+        this.senha = senha;
     }
 }
