@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
+        String cpf = getIntent().getStringExtra("cpfLogin");
+
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.nav_gen, new GeradorFragment());
         fragmentMap.put(R.id.nav_aju, new AjustesFragment());
@@ -66,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
                 Fragment selectedFragment = fragmentMap.get(item.getItemId());
 
                 if (selectedFragment != null) {
+                    if (item.getItemId() == R.id.nav_aju) {
+                        AjustesFragment ajustesFragment = (AjustesFragment) selectedFragment;
+                        Bundle args = new Bundle();
+                        args.putString("cpfLogin", cpf);
+                        ajustesFragment.setArguments(args);
+                    }
                     getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, selectedFragment).commit();
                 }
                 return true;

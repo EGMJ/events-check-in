@@ -107,6 +107,20 @@ public class LoginActivity extends AppCompatActivity {
                 String cpf = editCpf.getText().toString();
                 String senha = editSenha.getText().toString();
 
+                // passando o login para o fragment
+
+                AjustesFragment ajustesFragment = new AjustesFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("cpfLogin", cpf);
+
+                System.out.println(cpf);
+
+                ajustesFragment.setArguments(bundle);
+
+
+
+
 //                 Inicializa ClienteDAO com o contexto correto
                 clienteDAO = new ClienteDAO(LoginActivity.this);
 //                boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
@@ -145,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
     private void redirectToLogin() {
         Intent intent = new Intent(this, MainActivity.class);
         // enviar o cpf para a tela da frente (main) e com o readbycpf puxar os dados do usuario
+        intent.putExtra("cpfLogin", editCpf.getText().toString());
         startActivity(intent);
         finish();
     }
