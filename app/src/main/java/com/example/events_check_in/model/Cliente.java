@@ -6,13 +6,12 @@ public class Cliente {
 
     public Cliente(){}
 
-    public Cliente(Integer id, String nome, String cpf, String telefone) {
+    public Cliente(Integer id, String nome, String cpf, String telefone, String senha) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.senha = senha;
-
     }
 
     public Integer getId() {

@@ -101,14 +101,14 @@ public class LoginActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 btnEntrar.setEnabled(true);
 
-                criaCliente();
-
                 String cpf = editCpf.getText().toString();
                 String senha = editSenha.getText().toString();
 
-                // Inicializa ClienteDAO com o contexto correto
+//                 Inicializa ClienteDAO com o contexto correto
                 clienteDAO = new ClienteDAO(LoginActivity.this);
                 boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
+
+//                boolean isLoginValido = true;
 
                 // Se o usuário existir no banco de dados, redireciona e exibe a mensagem de sucesso
                 if (isLoginValido) {
@@ -131,15 +131,5 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private long criaCliente(){
-        Cliente cli = new Cliente();
-        cli.setNome("Edson");
-        cli.setCpf("12332134554");
-        cli.setTelefone("11977336754");
-        cli.setSenha("1234");
-
-        return clienteDAO.insert(cli);
     }
 }

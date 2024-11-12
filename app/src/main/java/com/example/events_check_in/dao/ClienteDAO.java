@@ -42,6 +42,14 @@ public class ClienteDAO {
         return existe;
     }
 
+    public boolean isCpfCadastrado(String cpf) {
+        String query = "SELECT * FROM cliente WHERE cpf = ?";
+        Cursor cursor = banco.rawQuery(query, new String[]{cpf});
+        boolean existe = cursor.getCount() > 0;
+        cursor.close();
+        return existe;
+    }
+
     // Método para atualizar dados
     public void update(Cliente cliente){
         ContentValues values = new ContentValues();

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class Conexao extends SQLiteOpenHelper {
 
     // declarando banco de dados
-    private static final String NAME="cadastro_aluno.db";
+    private static final String NAME="cadastro_cliente.db";
     private static final int VERSION=1;
 
     // construtor
@@ -18,13 +18,13 @@ public class Conexao extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // criando tabela no banco de dados (ID chave primaria)
-        db.execSQL("CREATE TABLE aluno (id INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                "nome VARCHAR(50), cpf VARCHAR(50), telefone VARCHAR(50))");
+        db.execSQL("CREATE TABLE cliente (id INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                "nome VARCHAR(50), cpf VARCHAR(50), telefone VARCHAR(50), senha VARCHAR(50))");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        String sql = "DROP TABLE IF EXISTS aluno";
+        String sql = "DROP TABLE IF EXISTS cliente";
         db.execSQL(sql);
         onCreate(db);
     }
