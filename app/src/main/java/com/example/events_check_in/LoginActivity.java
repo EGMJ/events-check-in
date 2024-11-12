@@ -1,6 +1,5 @@
 package com.example.events_check_in;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,17 +15,13 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.example.events_check_in.dao.ClienteDAO;
+import com.example.events_check_in.model.Cliente;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
 
-    //private static final String CPF_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"; // Regex para validação de e-mail
     private static final String ERROR_EMPTY_CPF = "Preencha o CPF!";
     private static final String ERROR_EMPTY_PASSWORD = "Preencha a Senha!";
     private static final String ERROR_INVALID_CPF = "CPF inválido!";
@@ -37,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnEntrar;
     private ProgressBar progressBar;
     private TextView txtTelaCadastro;
+
+    private ClienteDAO clienteDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,39 +62,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 hideKeyboard(v); // Esconde o teclado
-
-                String cpf = editCpf.getText().toString();
-                String senha = editSenha.getText().toString();
-
-                if (cpf.isEmpty()) {
-                    editCpf.setError(ERROR_EMPTY_CPF);
-                    editCpf.requestFocus();
-                    return;
-                }
-
-                if (senha.isEmpty()) {
-                    editSenha.setError(ERROR_EMPTY_PASSWORD);
-                    editSenha.requestFocus();
-                    return;
-                }
-
-                if (cpf.length() < 11) {
-                    Snackbar snackbar = Snackbar.make(v, ERROR_INVALID_CPF, Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                    editCpf.requestFocus();
-                    return;
-                }
-
-                if (senha.length() < 6) {
-                    Snackbar snackbar = Snackbar.make(v, ERROR_INVALID_PASSWORD, Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                    editSenha.requestFocus();
-                    return;
-                }
-
                 btnEntrar.setEnabled(false);
-
-                // validar se o usuario existe no bd
                 login();
             }
         });
@@ -108,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
                 cadastro();
             }
         });
-
     }
 
     // Método para esconder o teclado
@@ -136,9 +100,29 @@ public class LoginActivity extends AppCompatActivity {
                 // Esconde a barra de progresso após o atraso
                 progressBar.setVisibility(View.GONE);
                 btnEntrar.setEnabled(true);
-                redirectToLogin();
-                Snackbar snackbar = Snackbar.make(progressBar, "Login efetuado com sucesso!", Snackbar.LENGTH_SHORT);
-                snackbar.show();
+
+                criaCliente();
+
+                String cpf = editCpf.getText().toString();
+                String senha = editSenha.getText().toString();
+
+                // Inicializa ClienteDAO com o contexto correto
+                clienteDAO = new ClienteDAO(LoginActivity.this);
+                boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
+
+                // Se o usuário existir no banco de dados, redireciona e exibe a mensagem de sucesso
+                if (isLoginValido) {
+                    redirectToLogin();
+                    Snackbar snackbar = Snackbar.make(progressBar, "Login efetuado com sucesso!", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else {
+                    // Caso contrário, exibe a mensagem de erro e limpa os campos de texto
+                    editCpf.setText(null);
+                    editSenha.setText(null);
+
+                    Snackbar snackbar = Snackbar.make(progressBar, "Usuário ou senha incorretos", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
             }
         }, 3000);
     }
@@ -147,5 +131,15 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private long criaCliente(){
+        Cliente cli = new Cliente();
+        cli.setNome("Edson");
+        cli.setCpf("12332134554");
+        cli.setTelefone("11977336754");
+        cli.setSenha("1234");
+
+        return clienteDAO.insert(cli);
     }
 }
