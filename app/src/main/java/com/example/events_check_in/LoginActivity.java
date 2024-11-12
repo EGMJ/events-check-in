@@ -1,6 +1,5 @@
 package com.example.events_check_in;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,27 +15,26 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.example.events_check_in.dao.ClienteDAO;
+import com.example.events_check_in.model.Cliente;
+import com.example.events_check_in.util.CpfMask;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
 
-    //private static final String CPF_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"; // Regex para validação de e-mail
     private static final String ERROR_EMPTY_CPF = "Preencha o CPF!";
     private static final String ERROR_EMPTY_PASSWORD = "Preencha a Senha!";
     private static final String ERROR_INVALID_CPF = "CPF inválido!";
-    private static final String ERROR_INVALID_PASSWORD = "A senha precisa ter pelo menos 6 caracteres!";
+    private static final String ERROR_INVALID_PASSWORD = "Senha Inválida";
 
     private EditText editCpf;
     private EditText editSenha;
     private Button btnEntrar;
     private ProgressBar progressBar;
     private TextView txtTelaCadastro;
+
+    private ClienteDAO clienteDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,44 +58,14 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         txtTelaCadastro = findViewById(R.id.txtTelaCadastro);
 
+        CpfMask.applyCpfMask(editCpf);
+
         // On click botão "Entrar"
         btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hideKeyboard(v); // Esconde o teclado
-
-                String cpf = editCpf.getText().toString();
-                String senha = editSenha.getText().toString();
-
-                if (cpf.isEmpty()) {
-                    editCpf.setError(ERROR_EMPTY_CPF);
-                    editCpf.requestFocus();
-                    return;
-                }
-
-                if (senha.isEmpty()) {
-                    editSenha.setError(ERROR_EMPTY_PASSWORD);
-                    editSenha.requestFocus();
-                    return;
-                }
-
-                if (cpf.length() < 11) {
-                    Snackbar snackbar = Snackbar.make(v, ERROR_INVALID_CPF, Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                    editCpf.requestFocus();
-                    return;
-                }
-
-                if (senha.length() < 6) {
-                    Snackbar snackbar = Snackbar.make(v, ERROR_INVALID_PASSWORD, Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                    editSenha.requestFocus();
-                    return;
-                }
-
                 btnEntrar.setEnabled(false);
-
-                // validar se o usuario existe no bd
                 login();
             }
         });
@@ -108,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
                 cadastro();
             }
         });
-
     }
 
     // Método para esconder o teclado
@@ -136,15 +103,63 @@ public class LoginActivity extends AppCompatActivity {
                 // Esconde a barra de progresso após o atraso
                 progressBar.setVisibility(View.GONE);
                 btnEntrar.setEnabled(true);
-                redirectToLogin();
-                Snackbar snackbar = Snackbar.make(progressBar, "Login efetuado com sucesso!", Snackbar.LENGTH_SHORT);
-                snackbar.show();
+
+                String cpf = editCpf.getText().toString();
+                String senha = editSenha.getText().toString();
+
+                // passando o login para o fragment
+
+                AjustesFragment ajustesFragment = new AjustesFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("cpfLogin", cpf);
+
+                System.out.println(cpf);
+
+                ajustesFragment.setArguments(bundle);
+
+
+
+
+//                 Inicializa ClienteDAO com o contexto correto
+                clienteDAO = new ClienteDAO(LoginActivity.this);
+//                boolean isLoginValido = clienteDAO.isLoginValido(cpf, senha);
+                boolean isLoginValidoCpf = clienteDAO.isLoginValidoCpf(cpf);
+                System.out.println("senha login: "+ senha);
+                boolean isLoginValidoSenha = clienteDAO.isLoginValidoSenha(senha);
+
+                System.out.println(isLoginValidoSenha);
+
+
+
+                if (!isLoginValidoCpf && !isLoginValidoSenha) {
+                    // CPF e senha incorretos
+                    showSnackbar(ERROR_INVALID_CPF + " e " + ERROR_INVALID_PASSWORD);
+                } else if (!isLoginValidoCpf) {
+                    // Somente CPF incorreto
+                    showSnackbar(ERROR_INVALID_CPF);
+                } else if (!isLoginValidoSenha) {
+                    // Somente senha incorreta
+                    showSnackbar(ERROR_INVALID_PASSWORD);
+                } else {
+                    // CPF e senha corretos, redireciona para a próxima tela
+                    redirectToLogin();
+                    showSnackbar("Login efetuado com sucesso!");
+                }
             }
         }, 3000);
     }
 
+    private void showSnackbar(String message) {
+        Snackbar snackbar = Snackbar.make(progressBar, message, Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
+
+
     private void redirectToLogin() {
         Intent intent = new Intent(this, MainActivity.class);
+        // enviar o cpf para a tela da frente (main) e com o readbycpf puxar os dados do usuario
+        intent.putExtra("cpfLogin", editCpf.getText().toString());
         startActivity(intent);
         finish();
     }

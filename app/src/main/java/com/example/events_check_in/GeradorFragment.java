@@ -18,34 +18,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.example.events_check_in.dao.ClienteDAO;
+import com.example.events_check_in.model.Cliente;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class GeradorFragment extends Fragment {
+
+    private Cliente cliente;
 
     @Nullable
     @Override
@@ -57,8 +41,24 @@ public class GeradorFragment extends Fragment {
         Button btnGenerate = view.findViewById(R.id.btnGenerate);
         // Campo de texto para entrada do texto do QR code
         EditText etText = view.findViewById(R.id.etText);
+
         // ImageView para mostrar o QR code gerado
         ImageView imageCode = view.findViewById(R.id.imageCode);
+
+        // Recuperando o CPF do cliente passado pelo Bundle
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String cpf = bundle.getString("cpfLogin");
+            ClienteDAO clienteDAO = new ClienteDAO(getActivity());
+            cliente = clienteDAO.readByCpf(cpf);  // Obtém os dados do cliente
+
+            if (cliente != null) {
+                // Formatando o texto para o EditText
+                String clientData = "ID:" + cliente.getId() + ", Nome:" + cliente.getNome() +
+                        ", CPF:" + cliente.getCpf() + ", Telefone:" + cliente.getTelefone();
+                etText.setText(clientData);  // Definindo o texto no EditText
+            }
+        }
 
         btnGenerate.setOnClickListener(v -> {
             // Obtendo o texto do campo de entrada
@@ -68,9 +68,25 @@ public class GeradorFragment extends Fragment {
             try {
                 // Criando a BitMatrix para codificar o texto inserido e definindo altura e largura
                 BitMatrix mMatrix = mWriter.encode(myText, BarcodeFormat.QR_CODE, 400, 400);
-                BarcodeEncoder mEncoder = new BarcodeEncoder();
-                Bitmap mBitmap = mEncoder.createBitmap(mMatrix); // Criando o bitmap do código
-                imageCode.setImageBitmap(mBitmap); // Definindo o QR code gerado no ImageView
+
+                // Definindo largura e altura do Bitmap
+                int width = mMatrix.getWidth();
+                int height = mMatrix.getHeight();
+                Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+                // Cores para o fundo e o QR code
+                int colorBackground = 0x050038; // Azul claro
+                int colorQRCode = 0xFF000000; // Preto
+
+                // Percorrendo os pixels do BitMatrix e aplicando as cores
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        mBitmap.setPixel(x, y, mMatrix.get(x, y) ? colorQRCode : colorBackground);
+                    }
+                }
+
+                // Definindo o QR code gerado no ImageView
+                imageCode.setImageBitmap(mBitmap);
 
                 // Para ocultar o teclado
                 InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);

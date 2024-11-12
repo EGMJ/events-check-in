@@ -2,15 +2,16 @@ package com.example.events_check_in.model;
 
 public class Cliente {
     private Integer id;
-    private String nome,cpf,telefone;
+    private String nome,cpf,telefone,senha;
 
     public Cliente(){}
 
-    public Cliente(Integer id, String nome, String cpf, String telefone) {
+    public Cliente(Integer id, String nome, String cpf, String telefone, String senha) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
+        this.senha = senha;
     }
 
     public Integer getId() {
@@ -43,5 +44,13 @@ public class Cliente {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

@@ -1,15 +1,8 @@
 package com.example.events_check_in;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,14 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,8 +39,16 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
+        String cpf = getIntent().getStringExtra("cpfLogin");
+
         fragmentMap = new HashMap<>();
-        fragmentMap.put(R.id.nav_gen, new GeradorFragment());
+        GeradorFragment geradorFragment = new GeradorFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString("cpfLogin", cpf);
+        geradorFragment.setArguments(bundle);
+
+        fragmentMap.put(R.id.nav_gen, geradorFragment);
         fragmentMap.put(R.id.nav_aju, new AjustesFragment());
 
         if (savedInstanceState == null) {
@@ -66,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
                 Fragment selectedFragment = fragmentMap.get(item.getItemId());
 
                 if (selectedFragment != null) {
+                    if (item.getItemId() == R.id.nav_aju) {
+                        AjustesFragment ajustesFragment = (AjustesFragment) selectedFragment;
+                        Bundle args = new Bundle();
+                        args.putString("cpfLogin", cpf);
+                        ajustesFragment.setArguments(args);
+                    }
                     getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, selectedFragment).commit();
                 }
                 return true;
